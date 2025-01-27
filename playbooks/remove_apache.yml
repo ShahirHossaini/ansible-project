@@ -3,7 +3,7 @@
   become: true
   tasks:
         
-    - name: delete apache2 package
+    - name: delete apache and php package
       package:
         name: 
          - "{{ apache_package }}"
