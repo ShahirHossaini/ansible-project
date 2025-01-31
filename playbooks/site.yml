@@ -42,3 +42,11 @@
       state: latest
     when: ansible_distribution == "CentOS"
 
+  - name: copy default html file to web server
+    tags: centos, apache, php
+    copy:
+      src: default_web_page.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
