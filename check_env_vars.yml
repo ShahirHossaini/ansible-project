@@ -1,8 +1,0 @@
-- name: Load environment variables from file
-  hosts: all
-  vars_files:
-    - env.yml
-  tasks:
-    - name: Print environment variables
-      debug:
-        msg: "Value of ANSIBLE_SSH_KEY is {{ ANSIBLE_SSH_KEY }}"
