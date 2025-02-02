@@ -18,6 +18,33 @@
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
+- hosts: all
+  become: true
+  vars_files:
+    - ../env.yml
+  tasks:
+
+  - name: create zaeir user
+    tags: always
+    user:
+      name: zaeir
+      groups: root
+
+  - name: add ssh key for zaeir
+    tags: always
+    authorized_key:
+      user: zaeir
+      key: "{{ ANSIBLE_SSH_KEY }}" 
+
+
+  - name: add sudoers file for zaeir
+    tags: always
+    copy:
+      src: sudoer_zaeir
+      dest: /etc/sudoers.d/zaeir
+      owner: root
+      group: root
+
 
 - hosts: web_servers
   become: true
@@ -40,6 +67,23 @@
         - httpd
         - php
       state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: start apache server in CentOS
+    tags: centos, apache, php
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Open port 80/tcp permanently in firewalld CentOS
+    tags: centos, apache, php
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+      immediate: yes
     when: ansible_distribution == "CentOS"
 
   - name: copy default html file to web server
