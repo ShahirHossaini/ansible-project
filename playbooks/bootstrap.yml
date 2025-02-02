@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: install updates (CentOS)
+      tags: always
+      dnf:
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: install updates (Ubuntu)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  vars_files:
+    - ../env.yml
+  tasks:
+    - name: create zaeir user
+      tags: always
+      user:
+        name: zaeir
+        groups: root
+
+    - name: add ssh key for zaeir
+      tags: always
+      authorized_key:
+        user: zaeir
+        key: "{{ ANSIBLE_SSH_KEY }}"
+
+    - name: add sudoers file for zaeir
+      tags: always
+      copy:
+        src: sudoer_zaeir
+        dest: /etc/sudoers.d/zaeir
+        owner: root
+        group: root
