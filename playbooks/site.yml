@@ -1,96 +1,44 @@
 ---
-
-- hosts: all
-  become: true
-  pre_tasks:
-
-  - name: update repo cache (CentOS)
-    tags: always
-    dnf:
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "CentOS"
-
-  - name: update repo cache (Ubuntu)
-    tags: always
-    apt:
-      update_cache: yes
-    changed_when: false
-    when: ansible_distribution == "Ubuntu"
-
-- hosts: all
-  become: true
-  vars_files:
-    - ../env.yml
-  tasks:
-
-  - name: create zaeir user
-    tags: always
-    user:
-      name: zaeir
-      groups: root
-
-  - name: add ssh key for zaeir
-    tags: always
-    authorized_key:
-      user: zaeir
-      key: "{{ ANSIBLE_SSH_KEY }}" 
-
-
-  - name: add sudoers file for zaeir
-    tags: always
-    copy:
-      src: sudoer_zaeir
-      dest: /etc/sudoers.d/zaeir
-      owner: root
-      group: root
-
-
-- hosts: web_servers
-  become: true
-  tasks:
-
-  - name: install apache and php for Ubuntu servers
-    tags: ubuntu, apache, php
-    apt:
-      name:
-        - apache2
-        - libapache2-mod-php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install apache and php for CentOS servers
-    tags: centos, apache, php
-    dnf:
-      name:
-        - httpd
-        - php
-      state: latest
-    when: ansible_distribution == "CentOS"
-
-  - name: start apache server in CentOS
-    tags: centos, apache, php
-    service:
-      name: httpd
-      state: started
-      enabled: yes
-    when: ansible_distribution == "CentOS"
-
-  - name: Open port 80/tcp permanently in firewalld CentOS
-    tags: centos, apache, php
-    firewalld:
-      port: 80/tcp
-      permanent: yes
-      state: enabled
-      immediate: yes
-    when: ansible_distribution == "CentOS"
-
-  - name: copy default html file to web server
-    tags: centos, apache, php
-    copy:
-      src: default_web_page.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
+ 
+ - hosts: all
+   become: true
+   pre_tasks:
+ 
+   - name: update repository index (CentOS)
+     tags: always
+     dnf:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "CentOS"
+ 
+   - name: update repository index (Ubuntu)
+     tags: always
+     apt:
+       update_cache: yes
+     changed_when: false
+     when: ansible_distribution == "Ubuntu"
+ 
+ - hosts: all
+   become: true
+   roles:
+     - base
+    
+ - hosts: workstations
+   become: true
+   roles:
+     - workstations
+ 
+ - hosts: web_servers
+   become: true
+   roles:
+     - web_servers
+ 
+ - hosts: db_servers
+   become: true
+   roles:
+     - db_servers
+ 
+ - hosts: file_servers
+   become: true
+   roles:
+     - file_servers

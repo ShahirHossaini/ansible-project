@@ -1,0 +1,32 @@
+- name: install apache and php packages
+  tags: apache, php
+  package:
+    name:
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
+    state: latest
+
+- name: start and enable apache service
+  tags: apache, php
+  service:
+    name: "{{ apache_service }}"
+    state: started
+    enabled: yes
+
+- name: Open port 80/tcp permanently in firewalld CentOS
+  tags: centos, apache, php
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  when: ansible_distribution == "CentOS"
+
+- name: copy default html file to web server
+  tags: apache, php, httpd
+  copy:
+    src: default_web_page.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0644

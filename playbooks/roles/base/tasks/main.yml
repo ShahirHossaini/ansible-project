@@ -1,0 +1,5 @@
+- name: add ssh key for zaeir
+  tags: always
+  authorized_key:
+    user: zaeir
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF/n82ivT+wgDw5g9fg1vJN42+UEc/t7V5LGS0kO45vA ansible"
